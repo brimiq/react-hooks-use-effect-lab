@@ -1,40 +1,40 @@
 import React, { useState } from "react";
+import questions from "./questions";
 import Question from "./Question";
-import quiz from "../data/quiz";
 
 function App() {
-  const [questions, setQuestions] = useState(quiz);
-  const [currentQuestionId, setCurrentQuestion] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
-  const currentQuestion = questions.find((q) => q.id === currentQuestionId);
 
-  function handleQuestionAnswered(correct) {
-    if (currentQuestionId < questions.length) {
-      setCurrentQuestion((currentQuestionId) => currentQuestionId + 1);
-    } else {
-      setCurrentQuestion(null);
+  function handleAnswered(isCorrect) {
+    if (isCorrect) {
+      setScore((prev) => prev + 1);
     }
-    if (correct) {
-      setScore((score) => score + 1);
-    }
+
+    // Move to next question after 1 second
+    setTimeout(() => {
+      const next = currentIndex + 1;
+      if (next < questions.length) {
+        setCurrentIndex(next);
+      } else {
+        alert(`Quiz complete! Your score: ${score + (isCorrect ? 1 : 0)}/${questions.length}`);
+        setCurrentIndex(0);
+        setScore(0);
+      }
+    }, 1000);
   }
 
+  const question = questions[currentIndex];
+
   return (
-    <main>
-      <section>
-        {currentQuestion ? (
-          <Question
-            question={currentQuestion}
-            onAnswered={handleQuestionAnswered}
-          />
-        ) : (
-          <>
-            <h1>Game Over</h1>
-            <h2>Total Correct: {score}</h2>
-          </>
-        )}
-      </section>
-    </main>
+    <div className="App">
+      <h1>React Trivia</h1>
+      <Question
+        question={question}
+        onAnswered={handleAnswered}
+      />
+      <h3>Score: {score}</h3>
+    </div>
   );
 }
 
